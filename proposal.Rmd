@@ -1,0 +1,35 @@
+---
+title: "College Admissions"
+author: "Tseten Sherpa, Tiffany LaTorre, Surakshya Karki, Shreeja Dahal"
+date: "Oct 28, 2021"
+output: pdf_document
+---
+
+## Section 1. Introduction
+Students waiting to apply for college often find themselves wondering “Do I have what it takes to get admitted to the college of my choice?” One might think that their SAT score is the most important factor needed to bring them closer to a college education, while others may believe that college admissions are merely a game of chances and one’s ability to pay the tuition fees. According to bestvaalueschools.com, some colleges and universities also weigh a student’s character in the admissions equation. In this project, group 7 will report on factors that are taken into consideration by universities/colleges while offering a student an admission.  The team members will analyze the "College Admissions" dataset extracted from Kaggle revolving around college admissions/class demographic according to various universities across the 50 states. 
+Some of the research questions that the group is trying to answer are as follows:
+
+1. Which universities have the highest acceptance rate with the lowest test scores?
+2. Which universities give the most in financial aid and scholarships?
+3. What is the probability of getting accepted with a high SAT score or high ACT score?
+4. What correlation is there between the acceptance of universities with the best science or art programs and SAT subject scores?
+5. How diverse are colleges/universities in the US in terms of race and ethnicity?
+6. What is the acceptance rate compared to the graduation rate in most colleges/universities?
+
+We hypothesized that different colleges have different requirements and preference; while some colleges prefer academic excellence, others prefer unique extracurricular talents. Also, this report emphasizes how the US colleges are now providing equal oppurtuinities to all types of races around the world.
+
+Citation:
+https://www.bestvalueschools.com/faq/what-should-my-high-school-gpa-be-to-be-accepted-into-college/
+
+## Section 2. Data description
+The dataset represents various factors that generally play an important role in a college admission decision/process. It contains information about colleges/universities across the 50 states including but not limited to the cut-off SAT and ACT scores, the number of applications received, number of applicants accepted(including full-time and part-time), tuition fees, diversity representation, graduation rate, financial aid, and grant. In total, the dataset comprises 108 columns, 1,534 rows, including categorical, discrete, and continuous variables. Some missing values are reported across the dataset in various variables. Any information on how the data was curated is not mentioned on the website from where the dataset was extracted.
+Link to the dataset: https://www.kaggle.com/samsonqian/college-admissions
+
+
+## Section 3. Glimpse of data
+
+```{r load-glimpse, message=FALSE}
+library(tidyverse)
+df <- read.csv("Data-Table 1.csv")
+glimpse(df)
+```

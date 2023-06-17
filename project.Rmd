@@ -1,0 +1,939 @@
+---
+title: "College Admissions"
+author: "Tseten Sherpa, Tiffany LaTorre, Surakshya Karki, Shreeja Dahal"
+date: "December 19, 2021"
+output: pdf_document 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE, 
+                      message = FALSE)
+
+```
+__Introduction__
+
+For many high school seniors, going to the right college is one of the most crucial decisions to ever make in life. The journey of gaining knowledge and a degree in a field of their interest is not the only worry. A student must seek out an institution that they will feel comfortable going to and would not feel like an outsider. A college/university name or prestige cannot be the only factor a student should look at while making this decision. Students will like to look at other factors such as average standardized test scores, acceptance rate, and student diversity. 
+In this report, Group 7 will focus on the factors that high school students look into before making any decisions and their chances of getting admitted to their top picks. The team members will analyze the "College Admissions" dataset obtained from Kaggle revolving around college admissions/class demographics according to various universities across the 50 states.
+Some of the research questions that the group is trying to answer are as follows:
+
+a. Which schools have the highest and lowest number of applicants? Which schools have the highest and lower acceptance rate?
+
+b. What kind of test scores do these schools accept?
+
+c. Which schools have the highest number of undergraduate enrollment?
+
+d. Which schools have the highest and lowest full-time and part-time undergraduate enrollment?
+
+e. Which school has the highest  percent of freshmen who submitted SAT and ACT scores?
+
+f. How different are schools that get higher test scores from those that get lower test scores? 
+
+g. Which schools provide the highest and lowest financial aid to freshmen?
+
+h. Which schools have the lowest number of women enrollment?
+ 
+
+
+__Dataset Description__
+
+This data set represents various factors that usually play an important role in the university admission decision/process. It contains information about colleges/universities across the 50 states including but not limited to the average SAT and ACT scores, the number of applications received, the number of applicants accepted(including full-time and part-time), tuition fees, diversity representation, graduation rate, financial aid, and grant in 2014. The data set contains a total of 108 columns and 1517 rows, including categorical variables, discrete variables, and continuous variables. Some missing values are reported in various variables in the data set. The website where the data set was extracted did not mention any information on how to organize the data.
+Link to the data: https://www.kaggle.com/samsonqian/college-admissions. 
+
+__Methodology__
+
+In this project, we will be looking at the data as curious high school seniors looking for our top college picks. While looking for colleges that meet high school senior’s expectations, they will find themselves asking questions such as what institutions receive the most or least applications and compare that to the standardized test scores of the admitted freshmen. We will also be looking into the number of undergrad enrollments in the colleges, and the balance of genders in the student body. We will also be looking into the cultural diversity of students within the universities, as students tend to associate more with other students with similar ethnicity and culture and hence, feel more accepted. In addition, we wanted to compare schools that offer the most and the least financial aid and grants for freshmen to reduce the financial burden of going to university. Lastly, we will use linear regression models to predict the chances of getting admitted to the most sought-after institutions with average SAT and ACT scores, to decide which test to take to increase the chances of getting accepted.
+
+```{r, message=FALSE}
+library(tidyverse)
+df <- read.csv("Data-Table 1.csv")
+
+```
+
+```{r,comment=NA, message=FALSE}
+df <- df %>%
+select(-"FIPS.state.code", -"Geographic.region",	-"Sector.of.institution", -"Level.of.institution",-"Control.of.institution", -"Endowment.assets..year.end..per.FTE.enrollment..FASB.",-"Endowment.assets..year.end..per.FTE.enrollment..GASB.",-"Percent.of.freshmen.receiving.other.loan.aid", -"Percent.of.freshmen.receiving.federal.student.loans",-"Percent.of.freshmen.receiving.student.loan.aid", -"Estimated.enrollment..total", -"Estimated.enrollment..full.time", -"Estimated.enrollment..part.time", -"Estimated.undergraduate.enrollment..total", -"Estimated.undergraduate.enrollment..full.time", -"Estimated.undergraduate.enrollment..part.time", -"Estimated.freshman.undergraduate.enrollment..total", -"Estimated.freshman.enrollment..full.time",
+       -"Estimated.freshman.enrollment..part.time",-"Estimated.graduate.enrollment..total",-"Estimated.graduate.enrollment..full.time", -"Estimated.graduate.enrollment..part.time", -"State.abbreviation", -"Historically.Black.College.or.University",-"Degree.of.urbanization..Urban.centric.locale.", "Tribal.college", -"Carnegie.Classification.2010..Basic", "Total..enrollment", -"Full.time.enrollment", -"Part.time.enrollment",
+       -"Graduate.enrollment", -"Percent.of.graduate.enrollment.that.are.American.Indian.or.Alaska.Native",
+-"Percent.of.graduate.enrollment.that.are.Asian", -"Percent.of.graduate.enrollment.that.are.Black.or.African.American",-"Percent.of.graduate.enrollment.that.are.Hispanic.Latino",                                -"Percent.of.graduate.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander", -"Percent.of.graduate.enrollment.that.are.White",  -"Percent.of.graduate.enrollment.that.are.two.or.more.races",-"Percent.of.graduate.enrollment.that.are.Race.ethnicity.unknown", "Percent.of.graduate.enrollment.that.are.Nonresident.Alien",                              "Percent.of.graduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander",-"Percent.of.graduate.enrollment.that.are.women",
+-"Number.of.first.time.undergraduates...in.state",
+-"Percent.of.first.time.undergraduates...in.state",
+-"Number.of.first.time.undergraduates...out.of.state",
+-"Percent.of.first.time.undergraduates...out.of.state",
+-"Number.of.first.time.undergraduates...foreign.countries",
+-"Percent.of.first.time.undergraduates...foreign.countries",
+-"Number.of.first.time.undergraduates...residence.unknown",
+-"Percent.of.first.time.undergraduates...residence.unknown",
+-"Graduation.rate...Bachelor.degree.within.4.years..total",                               
+-"Graduation.rate...Bachelor.degree.within.5.years..total",
+-"Graduation.rate...Bachelor.degree.within.6.years..total",
+-"Percent.of.freshmen.receiving.Pell.grants",
+-"Percent.of.freshmen.receiving.other.federal.grant.aid",
+-"Percent.of.freshmen.receiving.state.local.grant.aid",
+-"Percent.of.freshmen.receiving.institutional.grant.aid",
+-"Percent.of.freshmen.receiving.student.loan.aid",                                         
+-"Percent.of.freshmen.receiving.federal.student.loans",
+-"Percent.of.freshmen.receiving.other.loan.aid",
+-"Endowment.assets..year.end..per.FTE.enrollment..GASB.",
+-"Endowment.assets..year.end..per.FTE.enrollment..FASB.",
+-"Tribal.college",
+-"Percent.of.graduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander",
+-"Percent.of.graduate.enrollment.that.are.Nonresident.Alien",
+-"Total.price.for.out.of.state.students.living.on.campus.2013.14",
+-"Total.price.for.in.state.students.living.on.campus.2013.14",
+-"Admissions.yield...total",
+-"Percent.of.freshmen..receiving.federal.grant.aid",
+-"Number.of.students.receiving.an.Associate.s.degree",
+-"Total..enrollment",
+-"Percent.of.freshmen.receiving.federal..state..local.or.institutional.grant.aid",
+-"Percent.of.total.enrollment.that.are.American.Indian.or.Alaska.Native",
+-"Percent.of.total.enrollment.that.are.Asian",
+-"Percent.of.total.enrollment.that.are.Black.or.African.American",
+-"Percent.of.total.enrollment.that.are.Hispanic.Latino",
+-"Percent.of.total.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander",
+-"Percent.of.total.enrollment.that.are.White",
+-"Percent.of.total.enrollment.that.are.two.or.more.races",
+-"Percent.of.total.enrollment.that.are.Race.ethnicity.unknown",
+-"Percent.of.total.enrollment.that.are.women",
+-"Percent.of.total.enrollment.that.are.Nonresident.Alien"
+
+)
+```
+
+
+
+```{r, message=FALSE}
+library(tidyr)
+df <- na.omit(df)
+```
+
+
+
+__Results__
+
+Let's look into the dataframe to find out which schools have highest and lowest number of applicants, admission rates, and test scores.
+
+
+```{r,comment=NA, message=FALSE}
+
+max_applicants <-  df[which.max(df$Applicants.total), ]
+colnames(max_applicants) <- c("Name", "Total Applicants")
+max_applicants <- max_applicants[,c("Name", "Total Applicants")]
+
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_applicants <- df[which.min(df$Applicants.total), ]
+colnames(min_applicants) <- c("Name", "Total Applicants")
+min_applicants <- min_applicants[,c("Name", "Total Applicants")]
+
+```
+
+
+
+```{r comment=NA, message=FALSE}
+
+max_percent_ad <- df[which.max(df$Percent.admitted...total), ]
+colnames(max_percent_ad)[15] <- "Admission Rate"
+max_percent_ad <- max_percent_ad[,c("Name", "Admission Rate")]
+
+```
+
+
+
+```{r, message=FALSE}
+
+min_percent_ad <- df[which.min(df$Percent.admitted...total), ]
+colnames(min_percent_ad)[15] <- "Admission Rate"
+min_percent_ad <- min_percent_ad[,c("Name", "Admission Rate")]
+
+```
+
+__Research Question 1:__
+
+Which schools have the highest and lowest number of applicants? Which schools have the highest and lower acceptance rate?
+
+
+```{r,comment=NA, message=FALSE}
+applications <- rbind(max_applicants, min_applicants)
+knitr::kable(applications, align = "lr", caption="Highest and Lowest Applicants")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+__Observations:__
+
+1. University of California-Los Angeles has the highest number of applicants with a total number of 72676 applicants. 
+
+2. Kuyper College has the lowest number of applicants with a total number of 152 applicants. 
+
+
+```{r,comment=NA, message=FALSE}
+admissions <- rbind(max_percent_ad, min_percent_ad)
+knitr::kable(admissions, align = "lr", caption="Highest and Lowest Admission Rate")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+__Observations:__
+
+1. Montana State University-Northern has the highest acceptance rate of 100%.
+
+2. Harvard University has the lowest acceptance rate of 6%. 
+
+
+
+```{r comment=NA, message=FALSE}
+
+schools <- df[which.max(df$Percent.admitted...total), ]
+schools <- rbind(schools, df[which.min(df$Percent.admitted...total), ])
+
+```
+
+
+
+__Research Question 2:__
+
+What kind of test scores do these schools accept?
+
+
+Lets look at what kind and percentage of test scores are submitted to Harvard with 6% acceptance rate and Montana State University-Northern with 100% acceptance rate.
+
+
+
+```{r,, fig.height = 2.5, fig.width = 7, fig.align = "center", message=FALSE}
+
+ggplot(schools, aes(x = Name, y = Percent.of.freshmen.submitting.SAT.scores, color=Name)) +
+  geom_point(size=4)+
+  theme(axis.text = element_text(size = 8)) +
+  labs(
+    title="Percent Of Freshmen Submitting SAT Scores",
+    subtitle="Highest And Lowest Acceptance Rate",
+    x ="College/University",
+    y = "Percent"
+  )
+
+```
+
+
+
+__Observations:__
+
+According to the graph above,
+
+1. About 87.5% of the test scores submitted to Harvard University are SAT scores. 
+
+2. About 8.5% of the test scores submitted to Montana State University-Northern are SAT scores. 
+
+
+```{r,, fig.height = 2.5, fig.width = 7, fig.align = "center", message=FALSE}
+
+
+
+
+ggplot(schools, aes(x = Name, y = Percent.of.freshmen.submitting.ACT.scores, color=Name)) +
+  geom_point(size=4)+
+  theme(axis.text = element_text(size = 8))+
+  labs(
+    title="Percent Of Freshmen Submitting ACT Scores",
+    subtitle="Highest And Lowest Acceptance Rate",
+    x ="College/University Name",
+    y = "Percent"
+    
+  )
+```
+
+
+__Observations:__
+
+
+According to the graph above,
+
+1. About 37% of the test scores submitted to Harvard University are ACT scores. 
+
+2. About 70% of the test scores submitted to Montana State University-Northern are ACT scores. 
+
+
+Both Harvard and Montana State University-Northern seem to accept SAT and ACT scores, although it seems like more SAT scores are submitted to Harvard than ACT and the opposite for Montana State University-Northern.
+
+
+
+__Research Question 3:__
+
+Which schools have the highest number of undergraduate enrollment?
+
+```{r,comment=NA, message=FALSE}
+
+max_enrolled <- df[which.max(df$Undergraduate.enrollment), ]
+colnames(max_enrolled)[4] <- "Total Undergraduate Enrollment"
+max_enrolled <- max_enrolled[,c("Name", "Total Undergraduate Enrollment")]
+
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_enrolled <- df[which.min(df$Undergraduate.enrollment), ]
+colnames(min_enrolled)[4] <- "Total Undergraduate Enrollment"
+min_enrolled <- min_enrolled[,c("Name", "Total Undergraduate Enrollment")]
+
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+enrollment <- rbind(max_enrolled, min_enrolled)
+knitr::kable(enrollment, align = "lr", caption="Highest and Lowest Undergraduate Enrollment")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+__Observations:__
+
+
+1. University of Central Florida has the highest number of undergraduate enrollment with 6068 students enrolled.
+
+2. College of St Joseph has the lowest number of enrollment with 33 students enrolled. 
+
+
+__Research Question 4:__
+
+Which schools have the highest and lowest full-time and part-time undergraduate enrollment?
+
+
+```{r,comment=NA, message=FALSE}
+
+max_fulltime_ugenrollment <- df[which.max(df$Full.time.undergraduate.enrollment), ]
+colnames(max_fulltime_ugenrollment)[20] <- "Full time undergraduate enrollment"
+max_fulltime_ugenrollment <- max_fulltime_ugenrollment[,c("Name", "Full time undergraduate enrollment")]
+
+```
+
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_fulltime_ugenrollment <- df[which.min(df$Full.time.undergraduate.enrollment), ]
+colnames(min_fulltime_ugenrollment)[20] <- "Full time undergraduate enrollment"
+min_fulltime_ugenrollment <- min_fulltime_ugenrollment[,c("Name", "Full time undergraduate enrollment")]
+
+```
+
+
+
+
+```{r,comment=NA, message=FALSE}
+full_enroll <- rbind(max_fulltime_ugenrollment, min_fulltime_ugenrollment)
+knitr::kable(full_enroll, align = "lr", caption="Highest and Lowest Full Time undergraduate Enrollment")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+
+__Observations:__
+
+1. Ohio State University-Main Campus had the highest number of full time undergraduate enrollment with 44201 enrollments. 
+
+2. College of St Joseph had the lowest number of full time undergraduate enrollment with 176 enrollments. 
+
+
+
+```{r,comment=NA, message=FALSE}
+
+max_parttime_ugenrollment <- df[which.max(df$Part.time.undergraduate.enrollment), ]
+colnames(max_parttime_ugenrollment)[21] <- "Part time undergraduate enrollment"
+max_parttime_ugenrollment <- max_parttime_ugenrollment[,c("Name", "Part time undergraduate enrollment")]
+
+```
+
+
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_parttime_ugenrollment <- df[which.min(df$Part.time.undergraduate.enrollment), ]
+colnames(min_parttime_ugenrollment)[21] <- "Part time undergraduate enrollment"
+min_parttime_ugenrollment <- min_parttime_ugenrollment[,c("Name",  "Part time undergraduate enrollment")]
+
+```
+ 
+
+
+```{r,comment=NA, message=FALSE}
+part_enroll <- rbind(max_parttime_ugenrollment, min_parttime_ugenrollment)
+knitr::kable(part_enroll, align = "lr", caption="Highest and Lowest Part Time undergraduate Enrollment")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+
+__Observations:__
+
+
+1. University of Central Florida has the highest number of part time undergraduate enrollment with 36229 enrollments.
+
+2. California Institute of Technology has the lowest number of part time undergraduate enrollment with 977 enrollments.
+
+
+
+
+
+
+
+
+__Research Question 5:__
+
+Which school has the highest percent of freshmen who submitted SAT and ACT scores?
+
+
+
+```{r,comment=NA, message=FALSE}
+
+max_percent_fresh_SAT <- df[which.max(df$Percent.of.freshmen.submitting.SAT.scores), ]
+colnames(max_percent_fresh_SAT)[5] <- "Total SAT scores (in Percent)"
+max_percent_fresh_SAT <- max_percent_fresh_SAT[,c("Name", "Total SAT scores (in Percent)")]
+
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_percent_fresh_SAT <- df[which.min(df$Percent.of.freshmen.submitting.SAT.scores), ]
+colnames(min_percent_fresh_SAT)[5] <- "Total SAT scores (in Percent)"
+min_percent_fresh_SAT <- min_percent_fresh_SAT[,c("Name", "Total SAT scores (in Percent)")]
+
+```
+
+
+```{r,comment=NA, message=FALSE}
+scores_SAT <- rbind(max_percent_fresh_SAT, min_percent_fresh_SAT)
+knitr::kable(scores_SAT, align = "lr", caption="Highest and Lowest SAT scores submittions in Percent")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+__Observations:__
+
+
+1. The college with the highest percent of freshmen who submitted SAT scores is Cabrini College, with 100% submission rate. 
+
+2. The college with the lowest percent of freshmen who submitted SAT scores is Arkansas State University-Main Campus, with 1% submission rate.
+
+
+
+
+
+```{r,comment=NA, message=FALSE}
+
+max_percent_fresh_ACT <- df[which.max(df$Percent.of.freshmen.submitting.ACT.scores), ]
+colnames(max_percent_fresh_ACT)[6] <- "Total ACT scores"
+max_percent_fresh_ACT <- max_percent_fresh_ACT[,c("Name", "Total ACT scores")]
+
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+min_percent_fresh_ACT <- df[which.min(df$Percent.of.freshmen.submitting.ACT.scores), ]
+colnames(min_percent_fresh_ACT)[6] <- "Total ACT scores"
+min_percent_fresh_ACT <- min_percent_fresh_ACT[,c("Name", "Total ACT scores")]
+
+```
+
+
+
+
+```{r,comment=NA, message=FALSE}
+scores_ACT <- rbind(max_percent_fresh_ACT, min_percent_fresh_ACT)
+knitr::kable(scores_ACT, align = "lr", caption="Highest and Lowest ACT scores submission(In Percent)")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+
+__Observations:__
+
+
+1. The college with the highest percent of freshmen who submitted ACT scores is Baker University, with 100% ACT scores submission rate. 
+
+2. The college with the lowest percent of freshmen who submitted ACT scores is The College of New Rochelle, with 1% ACT scores submission submission rate.
+
+
+
+
+
+
+__SAT & ACT SCORES ANALYSIS__ 
+
+__Research Question 6:__
+
+
+How different are schools that get higher test scores from those that get lower test scores? 
+
+Let's look at the distribution of SAT scores and acceptance rate across top 10 schools with the highest and lowest SAT scores. 
+
+
+
+
+```{r,comment=NA, message=FALSE}
+
+df <- df %>%
+  drop_na(SAT.Critical.Reading.25th.percentile.score,SAT.Critical.Reading.75th.percentile.score, SAT.Math.25th.percentile.score,
+          SAT.Math.75th.percentile.score,SAT.Writing.25th.percentile.score,SAT.Writing.75th.percentile.score,
+          ACT.Composite.25th.percentile.score,ACT.Composite.75th.percentile.score)
+
+```
+
+
+```{r comment=NA, message=FALSE}
+
+df <- df %>% 
+  mutate(Highest.SAT.score.in.75th.Percentile = SAT.Critical.Reading.75th.percentile.score + SAT.Math.75th.percentile.score + SAT.Writing.75th.percentile.score) 
+```
+
+```{r comment=NA, message=FALSE}
+df <- df %>% 
+  mutate(Lowest.SAT.score= SAT.Critical.Reading.25th.percentile.score + SAT.Math.25th.percentile.score + SAT.Writing.25th.percentile.score)
+```
+
+```{r , message=FALSE}
+
+high_25th_Percentile_SAT_score_in_schools <- df %>%
+  select(Name,Lowest.SAT.score, ACT.Composite.25th.percentile.score,Tuition.and.fees..2013.14, Percent.admitted...total)  %>%
+  arrange((Lowest.SAT.score)) %>%
+  head(10)
+
+
+colnames(high_25th_Percentile_SAT_score_in_schools) <- c("Name", "SAT", "ACT", "Tuition", "Acceptance")
+```
+
+
+
+```{r , message=FALSE}
+
+top_75th_Percentile_SAT_score_in_schools <- df %>%
+  select(Name,Highest.SAT.score.in.75th.Percentile,ACT.Composite.75th.percentile.score,Tuition.and.fees..2013.14,Percent.admitted...total ) %>%
+  arrange(desc(Highest.SAT.score.in.75th.Percentile)) %>%
+  head(10)
+colnames(top_75th_Percentile_SAT_score_in_schools) <- c("Name", "SAT", "ACT", "Tuition", "Acceptance")
+```
+
+```{r , message=FALSE}
+acceptance_pre<- df %>%
+  select(Name,Highest.SAT.score.in.75th.Percentile,ACT.Composite.75th.percentile.score,Percent.admitted...total ) %>%
+  arrange(desc(Highest.SAT.score.in.75th.Percentile)) 
+
+colnames(acceptance_pre) <- c("Name", "SAT", "ACT", "Acceptance")
+```
+
+
+```{r, message=FALSE }
+high_test_scores_SAT <- rbind(top_75th_Percentile_SAT_score_in_schools, high_25th_Percentile_SAT_score_in_schools)
+```
+
+```{r fig2, fig.height = 6, fig.width = 8, fig.align = "center", message=FALSE}
+ggplot(high_test_scores_SAT,aes(x = SAT, y = Acceptance, color = Name))+
+  geom_jitter(size = 3)+
+  labs(
+    title = "Distribution of SAT scores and Acceptance Rate",
+    x = "SAT scores",
+    y = "Admission Rate",
+    fill = "Name of School" 
+  )
+```
+
+```{r comment=NA, message=FALSE}
+
+high_25th_Percentile_ACT_score_in_schools <- df %>%
+  select(Name,Lowest.SAT.score, ACT.Composite.25th.percentile.score,Tuition.and.fees..2013.14, Percent.admitted...total)  %>%
+  arrange((ACT.Composite.25th.percentile.score)) %>%
+  head(10)
+colnames(high_25th_Percentile_ACT_score_in_schools) <- c("Name", "SAT", "ACT", "Tuition", "Acceptance")
+```
+
+
+
+```{r comment=NA, message=FALSE}
+
+top_75th_Percentile_ACT_score_in_schools <- df %>%
+  select(Name,Highest.SAT.score.in.75th.Percentile,ACT.Composite.75th.percentile.score,Tuition.and.fees..2013.14,Percent.admitted...total ) %>%
+  arrange(desc(ACT.Composite.75th.percentile.score)) %>%
+  head(10)
+
+colnames(top_75th_Percentile_ACT_score_in_schools) <- c("Name", "SAT", "ACT", "Tuition", "Acceptance")
+```
+
+
+```{r, message=FALSE }
+high_test_scores_ACT <- rbind(high_25th_Percentile_ACT_score_in_schools, top_75th_Percentile_ACT_score_in_schools)
+```
+
+
+
+Let's look at the distribution of ACT scores and acceptance rate across top 10 schools with the highest and lowest ACT scores. 
+
+
+```{r , fig.height = 6, fig.width = 8, fig.align = "center", message=FALSE}
+ggplot(high_test_scores_ACT,aes(x = ACT, y = Acceptance, color = Name))+
+  geom_jitter(size = 3)+
+  labs(
+    title = "Distribution of ACT scores and Acceptance Rate",
+    x = "ACT scores",
+    y = "Admission Rate",
+    fill = "Name of School" 
+  )
+```
+
+
+ 
+__Observation:__ 
+While it may seem that people with higher SAT/ACT scores have higher chances of getting accepted to colleges, the graphs above show that they aren't the sole deciding factors. So, we can conclude that there is no correlation between higher SAT/ACT scores and acceptance rate into college. Average scores of students accepted lie between the median of the two test total scores.
+
+
+
+__Research Question 7:__
+
+Which schools provide the highest and lowest financial aid to freshmen?
+
+
+```{r comment=NA, message=FALSE}
+
+min_percent_fresh_fin_aid <- df[which.min(df$Percent.of.freshmen.receiving.any.financial.aid), ]
+colnames(min_percent_fresh_fin_aid)[34] <- "Percent of Freshmen Receiving Any Financial Aid"
+min_percent_fresh_fin_aid <- min_percent_fresh_fin_aid[,c("Name",  "Percent of Freshmen Receiving Any Financial Aid")]
+
+```
+
+
+```{r comment=NA, message=FALSE}
+max_percent_fresh_fin_aid <- df[which.max(df$Percent.of.freshmen.receiving.any.financial.aid), ]
+colnames(max_percent_fresh_fin_aid)[34] <- "Percent of Freshmen Receiving Any Financial Aid"
+max_percent_fresh_fin_aid <- max_percent_fresh_fin_aid[,c("Name",  "Percent of Freshmen Receiving Any Financial Aid")]
+
+```
+
+
+```{r,comment=NA, message=FALSE}
+fin_aid <- rbind(min_percent_fresh_fin_aid, max_percent_fresh_fin_aid)
+knitr::kable(fin_aid, align = "lr", caption="Schools With Highest and Lowest Financial Aid")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+```{r , fig.height = 2.5, fig.width = 7, fig.align = "center", message=FALSE}
+
+aid <- df[which.max(df$Percent.of.freshmen.receiving.any.financial.aid), ]
+aid <- rbind(aid, df[which.min(df$Percent.of.freshmen.receiving.any.financial.aid), ])
+
+
+ggplot(aid, aes(x = Name, y = Percent.of.freshmen.receiving.any.financial.aid, color=Name)) +
+  geom_point(size=4)+
+  labs(
+    title="Percent of freshmen receiving any financial aid",
+    x ="College/University Name",
+    y = "Percent"
+  )
+
+```
+
+__Observation:__ 
+
+1. Trinity College gives out the least financial aid i.e, only about 49% of the students at Trinity College receive any financial aid. 
+2. Judson College on the other hand, gives out about 95% financial aid to students.  
+
+
+__Research Question 8:__
+
+Which schools have the lowest number of women enrollment?
+
+
+```{r comment=NA, message=FALSE}
+
+top_five_women <- df %>%
+  select(Name,Percent.of.undergraduate.enrollment.that.are.women) %>%
+  arrange(Percent.of.undergraduate.enrollment.that.are.women) %>%
+  head(5)
+
+
+colnames(top_five_women)[2] <- "Female Undergraduate Enrollment"
+top_five_women <- top_five_women[,c("Name", "Female Undergraduate Enrollment")]
+knitr::kable(top_five_women, align = "lr", caption="Female Undergraduate Enrollment in Percent ")
+```
+
+
+```{r , fig.height = 2.5, fig.width = 7, fig.align = "center", message=FALSE}
+
+colnames(top_five_women)[2] <- "Percent.of.undergraduate.enrollment.that.are.women"
+ggplot(top_five_women, aes(x = Name, y = Percent.of.undergraduate.enrollment.that.are.women))+
+  geom_point(color="salmon3", size=5)+
+  coord_flip()+
+  labs(
+    title="Schools With Lowest Women Enrollment",
+    subtitle="In Percent",
+    x ="College/University Name",
+    y = "Percent of Women Enrollment"
+  )
+
+```
+__Observation:__
+
+The top 5 schools with the least women enrollment are:
+
+1. Morehouse College	with 0% women enrollment		
+2. Saint Johns University	0% women enrollment				
+3. Hampden-Sydney College	0% women enrollment				
+4. Citadel Military College of South Carolina	9% women enrollment				
+5. SUNY Maritime College 11% women enrollment		
+
+
+
+
+```{r, message=FALSE}
+df2 <- df %>%
+  select(Name,Undergraduate.enrollment,
+         Percent.of.undergraduate.enrollment.that.are.American.Indian.or.Alaska.Native,
+         Percent.of.undergraduate.enrollment.that.are.Asian,
+         Percent.of.undergraduate.enrollment.that.are.Black.or.African.American, 
+         Percent.of.undergraduate.enrollment.that.are.Hispanic.Latino,
+         Percent.of.undergraduate.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander,
+         Percent.of.undergraduate.enrollment.that.are.White,                                     
+         Percent.of.undergraduate.enrollment.that.are.two.or.more.races,
+         Percent.of.undergraduate.enrollment.that.are.Race.ethnicity.unknown,                    
+         Percent.of.undergraduate.enrollment.that.are.Nonresident.Alien,                        
+         Percent.of.undergraduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander,    
+         Percent.of.undergraduate.enrollment.that.are.women 
+)
+
+d2 <- df2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.American.Indian.or.Alaska.Native=(Percent.of.undergraduate.enrollment.that.are.American.Indian.or.Alaska.Native*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Asian=(Percent.of.undergraduate.enrollment.that.are.Asian*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Black.or.African.American=(Percent.of.undergraduate.enrollment.that.are.Black.or.African.American*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Hispanic.Latino=(Percent.of.undergraduate.enrollment.that.are.Hispanic.Latino*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander=(Percent.of.undergraduate.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.White=(Percent.of.undergraduate.enrollment.that.are.White*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.two.or.more.races=(Percent.of.undergraduate.enrollment.that.are.two.or.more.races*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Race.ethnicity.unknown=(Percent.of.undergraduate.enrollment.that.are.Race.ethnicity.unknown*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Nonresident.Alien=(Percent.of.undergraduate.enrollment.that.are.Nonresident.Alien*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander
+         =(Percent.of.undergraduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander*Undergraduate.enrollment/100))
+
+d2 <- d2 %>%
+  mutate(total.of.undergraduate.enrollment.that.are.women 
+         = (Percent.of.undergraduate.enrollment.that.are.women*Undergraduate.enrollment/100))
+```
+
+
+```{r, message = FALSE}
+d2 <- d2 %>%
+  mutate(total = total.of.undergraduate.enrollment.that.are.American.Indian.or.Alaska.Native+
+           total.of.undergraduate.enrollment.that.are.Asian+ 
+           total.of.undergraduate.enrollment.that.are.Black.or.African.American+
+           total.of.undergraduate.enrollment.that.are.Hispanic.Latino+ total.of.undergraduate.enrollment.that.are.Native.Hawaiian.or.Other.Pacific.Islander+
+           total.of.undergraduate.enrollment.that.are.Asian.Native.Hawaiian.Pacific.Islander+
+           total.of.undergraduate.enrollment.that.are.White+
+           total.of.undergraduate.enrollment.that.are.two.or.more.races+
+           total.of.undergraduate.enrollment.that.are.Race.ethnicity.unknown)
+
+```
+
+```{r,comment=NA, message=FALSE}
+
+max_asians <-  d2[which.max(d2$total.of.undergraduate.enrollment.that.are.Asian), ]
+colnames(max_asians) <- c("Name", "Total Undergraduates That Are Asians")
+max_asians <- max_asians[,c("Name", "Total Undergraduates That Are Asians")]
+```
+
+```{r,comment=NA, message=FALSE}
+
+min_asians <-  d2[which.min(d2$total.of.undergraduate.enrollment.that.are.Asian), ]
+colnames(min_asians) <- c("Name", "Total Undergraduates That Are Asians")
+min_asians <- min_asians[,c("Name", "Total Undergraduates That Are Asians")]
+```
+
+```{r,comment=NA, message=FALSE}
+asians <- rbind(max_asians, min_asians)
+knitr::kable(asians, align = "lr", caption="Schools With Highest and Lowest Asian Undergraduate")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+max_black <-  d2[which.max(d2$total.of.undergraduate.enrollment.that.are.Black.or.African.American), ]
+colnames(max_black) <- c("Name", "Total Undergraduates That Are Black")
+max_black <- max_black[,c("Name", "Total Undergraduates That Are Black")]
+```
+
+```{r,comment=NA, message=FALSE}
+
+min_black <-  d2[which.min(d2$total.of.undergraduate.enrollment.that.are.Black.or.African.American), ]
+colnames(min_black) <- c("Name", "Total Undergraduates That Are Black")
+min_black <- min_black[,c("Name", "Total Undergraduates That Are Black")]
+```
+
+```{r,comment=NA, message=FALSE}
+black <- rbind(max_black, min_black)
+knitr::kable(black, align = "lr", caption="Schools With Highest and Lowest Black Undergraduate")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+```
+
+
+
+```{r,comment=NA, message=FALSE}
+
+max_his <-  d2[which.max(d2$total.of.undergraduate.enrollment.that.are.Hispanic.Latino), ]
+colnames(max_his) <- c("Name", "Total Undergraduates That Are Hispanic or Latino")
+max_his <- max_his[,c("Name", "Total Undergraduates That Are Hispanic or Latino")]
+```
+
+```{r,comment=NA, message=FALSE}
+
+min_his <-  d2[which.min(d2$total.of.undergraduate.enrollment.that.are.Hispanic.Latino), ]
+colnames(min_his) <- c("Name", "Total Undergraduates That Are Hispanic or Latino")
+min_his <- min_his[,c("Name", "Total Undergraduates That Are Hispanic or Latino")]
+```
+
+```{r,comment=NA, message=FALSE}
+his <- rbind(max_his, min_his)
+knitr::kable(his, align = "lr", caption="Schools With Highest and Lowest Hispanic or Latino Undergraduate")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+
+```
+
+```{r,comment=NA, message=FALSE}
+
+max_white <-  d2[which.max(d2$total.of.undergraduate.enrollment.that.are.White), ]
+colnames(max_white) <- c("Name", "Total Undergraduates That Are White")
+max_white <- max_white[,c("Name", "Total Undergraduates That Are White")]
+```
+
+```{r,comment=NA, message=FALSE}
+
+min_white <-  d2[which.min(d2$total.of.undergraduate.enrollment.that.are.White), ]
+colnames(min_white) <- c("Name", "Total Undergraduates That Are White")
+min_white <- min_white[,c("Name", "Total Undergraduates That Are White")]
+```
+
+```{r,comment=NA, message=FALSE}
+white <- rbind(max_white, min_white)
+knitr::kable(white, align = "lr", caption="Schools With Highest and Lowest White Undergraduate")
+## https://bookdown.org/yihui/rmarkdown-cookbook/kable.html#specify-column-alignment
+
+```
+
+
+
+__Predictions__
+
+Here, linear regressions are performed to find out if there is any relationship between a student's SAT/ACT test scores with their chances of getting accepted to a range of schools that accepts a low test score and high test scores.
+
+```{r comment=NA,}
+library(tidyverse) 
+library(tidymodels)
+library(knitr)
+```
+
+
+```{r comment=NA, message=FALSE}
+acceptance_top_SAT <- linear_reg() %>%
+  set_engine("lm") %>%  
+  fit(Acceptance ~ SAT, data = acceptance_pre)
+tidy(acceptance_top_SAT)%>%
+kable
+```
+
+The equation of the model is:
+
+__Acceptance__ = 143.88-0.04*SATScore
+
+Let's calculate the probability of student with the 2014 national average SAT score of 1497.
+
+__Acceptance__ = `r 143.88-0.04*1497`
+
+```{r comment=NA, message=FALSE}
+
+acceptance_top_ACT <- linear_reg() %>%
+  set_engine("lm") %>%  
+  fit(Acceptance ~ ACT, data = acceptance_pre)
+tidy(acceptance_top_ACT) %>%
+kable()
+
+```
+
+The equation of the model is:
+
+__Acceptance__ = 127.08-2.49*ACTScore
+
+Let's calculate the probability of student with the 2014 national average ACT score of 21.
+
+__Acceptance__ = `r 127.08-2.49*21`
+
+
+__Observations:__
+1. Test scores such as SAT and ACT scores seem to be important for acceptance into a college. However, they don't seem to be the only deciding factor when it comes to admissions. A student with an average SAT/ACT score might be confident about getting into college, but might want to consider looking into other factors as well while choosing their top choices of schools. 
+
+
+__Discussion__
+
+High school students often wonder if their test scores are good enough to get accepted into college. The team tried to explore different test scores related concerns among others in the project. Some of the questions the team was looking to get answers to were:
+
+a. What schools have the highest and lowest acceptance rate? 
+
+b. What schools receive the most and least number of SAT and ACT scores submissions?
+
+c. What schools have the least number of women enrollment?
+
+d. What schools provide the most and least financial aid?
+
+e. How diverse are the schools across the U.S?
+
+We found out that the acceptance rates vary from schools to schools, ranging from 6% to 100%, and the test scores submitted in each school varies in a similar manner. As per the results from linear regression models, we can understand that a high test score increases one's chances of getting accepted. However, test scores do not seem to be the only defining factor for college acceptance as they are reliant on many aspects of a student's application.
+
+One of the most interesting findings was that about 3 schools in the U.S have 0% women enrollment and only 9% of the students enrolled in a military school in South Carolina namely Citadel Military College of South Carolina are women.
+
+As far as cultural diversities are concerned, we found that California has the highest number of Asian Undergraduates, Florida has the highest number of Hispanic, Latinos, and African American Undergraduates, and Ohio has the highest number of White Undergraduates.
+
+
+__Some limitations in the dataset__
+
+The data set does not mention the average high school GPA accepted by universities/colleges, which limits the scope of our analysis. The dataset also lacked other helpful student variables such as class rank and student household income to name a few. There was not a lot of practical information needed to get a deep insight into the college application process and a lot of irrelevant columns had to be dropped.
+
+__Future Works__
+
+In the future, if time and situation favor, the team would like to look into the number of out-of-state students enrolled across the schools in the U.S. In addition to that, the team would like to understand and predict the number of applicants a school gets based on their level of urbanization and type of financial aid they provide. The team would also like to consult other datasets with GPA scores to broaden the scope of the analysis.
+
+__References__ 
+
+
+1. Anderson, Nick. “SAT Scores for Class of 2014 Show No Improvement from Previous Marks.” The Washington Post, WP Company, 7 Oct. 2014, https://www.washingtonpost.com/local/education/sat-scores-for-class-of-2014-show-no-improvement-from-previous-marks/2014/10/06/80beb554-4d5b-11e4-aa5e-7153e466a02d_story.html. 
+
+2. National Center for Education Statistics. “Digest of Education Statistics, 2018.” National Center for Education Statistics (NCES) Home Page, a Part of the U.S. Department of Education, https://nces.ed.gov/programs/digest/d18/tables/dt18_226.60.asp. 
+
+3. Qian, Samson. “College Admissions.” Kaggle, 27 Nov. 2018, https://www.kaggle.com/samsonqian/college-admissions. 
+
+
